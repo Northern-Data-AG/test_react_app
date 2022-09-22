@@ -18,7 +18,7 @@ jobs:
       - name: Check code formatting
         run: npm run format:check
       - name: Run automated tests
-        run: test -- -- coverage
+        run: npm test -- -- coverage
         env:
           CI: true
 
