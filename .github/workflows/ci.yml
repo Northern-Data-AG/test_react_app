@@ -29,6 +29,7 @@ jobs:
       - name: Install surge
         run: npm install -g surge
       - name: Deploy to Staging environment
+        if: github.event_name == 'push'
         run: npx surge --project ./build --domain thoughtful-bit.surge.sh
         env:
           SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
