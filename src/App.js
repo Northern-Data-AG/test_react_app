@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          React test project
+          This is a super test react project
         </a>
       </header>
     </div>
