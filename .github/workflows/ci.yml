@@ -2,6 +2,8 @@ name: CI
 on:
   pull_request:
     branches: [develop]
+  push:
+    branches: [develop]
 
 jobs:
   buld:
@@ -21,4 +23,14 @@ jobs:
         run: npm test -- -- coverage
         env:
           CI: true
+      - name: Build react project
+        if: github.event_name == 'push'
+        run: npm run build
+      - name: Install surge
+        run: npm install -g surge
+      - name: Deploy to Staging environment
+        run: npx surge --project ./build --domain thoughtful-bit.surge.sh
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
 
