@@ -40,7 +40,7 @@ jobs:
           name: build
           path: build
           if-no-files-found: error
-      - name: Create a release
+      - name: Create a new release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: npx semantic-release
         env:
