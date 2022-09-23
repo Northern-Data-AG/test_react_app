@@ -33,6 +33,11 @@ jobs:
       - name: Build react project
         if: github.event_name == 'push'
         run: npm run build
+      - name: Upload build folder
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build
       - name: Install surge
         run: npm install -g surge
       - name: Deploy to Staging environment
