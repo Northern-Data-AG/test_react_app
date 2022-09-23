@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          This application runs on production environment
+          This application runs on Production environment
         </a>
       </header>
     </div>
