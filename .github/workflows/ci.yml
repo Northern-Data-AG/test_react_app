@@ -42,7 +42,7 @@ jobs:
           if-no-files-found: error
       - name: Create a release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: npx semantic-release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${secrets.GITHUB_TOKEN}
       - name: Install surge
