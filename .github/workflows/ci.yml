@@ -58,8 +58,8 @@ jobs:
       - name: Deploy to Production environment
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          ls
-          npx surge --project build --domain bewildered-shoes.surge.sh
+          cd build
+          npx surge --domain bewildered-shoes.surge.sh
         env:
           SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
           SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
