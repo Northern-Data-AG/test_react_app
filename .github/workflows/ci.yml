@@ -1,0 +1,56 @@
+name: CI
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  buld:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{runner.os}}-node-${{hashFiles('**/package-lock.json')}}
+          restore-keys: |
+            ${{runner.os}}-node-
+      - name: Use NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+      - name: Install dependencies
+        run: npm ci
+      - name: Check code formatting
+        run: npm run format:check
+      - name: Run automated tests
+        run: npm test -- -- coverage
+        env:
+          CI: true
+      - name: Build react project
+        if: github.event_name == 'push'
+        run: npm run build
+      - name: Upload build folder
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build
+          if-no-files-found: error
+      - name: Create a release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${secrets.GITHUB_TOKEN}
+      - name: Install surge
+        run: npm install -g surge
+      - name: Deploy to Staging environment
+        if: github.event_name == 'push'
+        run: npx surge --project ./build --domain thoughtful-bit.surge.sh
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
+
