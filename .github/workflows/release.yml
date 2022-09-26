@@ -3,7 +3,6 @@ on:
   release:
     types: [published]
 
-
 jobs:
   slack-message:
     runs-on: ubuntu-latest
