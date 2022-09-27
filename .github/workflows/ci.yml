@@ -1,9 +1,9 @@
 name: CI
 on:
   pull_request:
-    branches: [develop]
+    branches: [develop, main]
   push:
-    branches: [develop]
+    branches: [develop, main]
 
 jobs:
   buld:
@@ -27,7 +27,7 @@ jobs:
       - name: Check code formatting
         run: npm run format:check
       - name: Run automated tests
-        run: npm test -- -- coverage
+        run: npm test ---- coverage
         env:
           CI: true
       - name: Build react project
@@ -40,12 +40,40 @@ jobs:
           name: build
           path: build
           if-no-files-found: error
+      - name: Create a new release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_TOKEN }}
       - name: Install surge
         run: npm install -g surge
       - name: Deploy to Staging environment
-        if: github.event_name == 'push'
-        run: npx surge --project ./build --domain thoughtful-bit.surge.sh
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          ls
+          npx surge --project ./build --domain thoughtful-bit.surge.sh
         env:
           SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
           SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
+      - name: Deploy to Production environment
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          ls
+          surge ./build https://bewildered-shoes.surge.sh
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
+      - name: Open an issue
+        if: failure() && github.event_name == 'pull_request'
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.CUSTOM_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Automated issue for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_.",
+            "assignees": ["${{github.event.pull_request.user.login}}"]
+            }'
+
 
